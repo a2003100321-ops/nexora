@@ -12,6 +12,12 @@ plugins {
 group = "com.nexora"
 version = "0.1.0-SNAPSHOT"
 
+val intentionallyPinnedVersionChecks = setOf(
+    "AndroidGradlePluginVersion",
+    "GradleDependency",
+    "NewerVersionAvailable",
+)
+
 subprojects {
     group = rootProject.group
     version = rootProject.version
@@ -30,6 +36,7 @@ subprojects {
             lint {
                 abortOnError = true
                 checkReleaseBuilds = true
+                disable += intentionallyPinnedVersionChecks
                 warningsAsErrors = true
             }
         }
@@ -48,6 +55,7 @@ subprojects {
             lint {
                 abortOnError = true
                 checkReleaseBuilds = true
+                disable += intentionallyPinnedVersionChecks
                 warningsAsErrors = true
             }
         }

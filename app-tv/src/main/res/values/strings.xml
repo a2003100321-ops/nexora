@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nexora TV</string>
+    <string name="tv_shell_title">Nexora</string>
+    <string name="tv_shell_status">电视端空壳已就绪</string>
+</resources>
