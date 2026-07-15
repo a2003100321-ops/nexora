@@ -12,6 +12,7 @@
 | [0005](0005-no-legacy-user-data-migration.md) | 已接受 | 不迁移 PickTV 用户数据 |
 | [0006](0006-storage-scope.md) | 已接受 | 第一阶段存储范围限定为本地、SMB、WebDAV、NFS |
 | [0007](0007-http-source-security.md) | 已接受 | HTTP 数据源网络、超时、私网与日志安全边界 |
+| [0008](0008-isolated-plugin-prototype.md) | 已接受 | Spider V1、严格 IPC、ServiceConnection/Binder death 与 isolatedProcess 形态原型边界 |
 | [0009](0009-all-source-search-identity.md) | 已接受 | 全源搜索会话隔离、稳定来源标识与不强制合并策略 |
 
 状态使用“提议”“已接受”“已替代”或“已废弃”。每份 ADR 至少说明背景、决策和后果。

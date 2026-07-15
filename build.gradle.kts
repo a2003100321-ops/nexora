@@ -87,7 +87,16 @@ val allowedModuleEdges = mapOf(
     ":player:media3" to setOf(":core:logging", ":player:api"),
     ":source:api" to setOf(":core:common", ":core:model"),
     ":source:config" to setOf(":core:common", ":source:api"),
-    ":source:runtime" to setOf(":core:logging", ":core:network", ":source:api", ":source:config"),
+    ":source:plugin-api" to emptySet(),
+    ":source:runtime" to setOf(
+        ":core:logging",
+        ":core:network",
+        ":source:api",
+        ":source:config",
+        ":source:plugin-api",
+        ":source:sandbox",
+    ),
+    ":source:sandbox" to setOf(":source:plugin-api"),
     ":source:testkit" to setOf(":source:api", ":source:config"),
     ":storage:api" to setOf(":core:common", ":core:model"),
     ":storage:local" to setOf(":core:logging", ":storage:api"),
@@ -127,7 +136,7 @@ val playerApiForbiddenSourceReferences = linkedMapOf(
     "Media3 implementation API" to """\bandroidx\.media3\b""",
 )
 
-val sourceRuntimeForbiddenExecutionReferences = linkedMapOf(
+val sourceDynamicExecutionReferences = linkedMapOf(
     "DexClassLoader" to """\b(?:dalvik\.system\.)?DexClassLoader\b""",
     "PathClassLoader" to """\b(?:dalvik\.system\.)?PathClassLoader\b""",
     "URLClassLoader" to """\b(?:java\.net\.)?URLClassLoader\b""",
@@ -210,8 +219,13 @@ tasks.register("checkForbiddenImports") {
                     if (module.path == ":player:api") {
                         addAll(playerApiForbiddenSourceReferences.entries)
                     }
-                    if (module.path == ":source:runtime") {
-                        addAll(sourceRuntimeForbiddenExecutionReferences.entries)
+                    if (module.path in setOf(
+                            ":source:plugin-api",
+                            ":source:runtime",
+                            ":source:sandbox",
+                        )
+                    ) {
+                        addAll(sourceDynamicExecutionReferences.entries)
                     }
                 }
 
@@ -244,10 +258,59 @@ tasks.register("checkForbiddenImports") {
     }
 }
 
+tasks.register("checkPluginSandboxPolicy") {
+    group = "verification"
+    description = "Verifies the isolated plugin service manifest and rejects executable plugin assets."
+
+    val sandboxManifest = file("source/sandbox/src/main/AndroidManifest.xml")
+    val sandboxSources = fileTree("source/sandbox/src/main")
+    val sandboxClient = file(
+        "source/sandbox/src/main/kotlin/com/nexora/source/sandbox/IsolatedSpiderClient.kt",
+    )
+    inputs.file(sandboxManifest)
+    inputs.file(sandboxClient)
+    inputs.files(sandboxSources)
+
+    doLast {
+        val manifest = sandboxManifest.readText()
+        check("android:exported=\"false\"" in manifest) {
+            "Plugin sandbox service must not be exported."
+        }
+        check("android:isolatedProcess=\"true\"" in manifest) {
+            "Plugin sandbox service must run as an isolated process."
+        }
+        check("<intent-filter" !in manifest) {
+            "Plugin sandbox service must not declare an intent filter."
+        }
+        check("android.permission.INTERNET" !in manifest) {
+            "Plugin sandbox module must not request Internet access."
+        }
+
+        val client = sandboxClient.readText()
+        check("ServiceConnection" in client && "bindService(" in client) {
+            "Plugin host must use an explicit bound-service connection."
+        }
+        check("linkToDeath(" in client) {
+            "Plugin host must observe isolated-worker binder death."
+        }
+        check("SpiderIpcCodec" in client) {
+            "Plugin host must use the bounded IPC envelope codec."
+        }
+
+        val forbiddenExtensions = setOf("jar", "dex", "apk", "aar", "so", "class", "pyc")
+        val forbiddenFiles = sandboxSources.files.filter { file ->
+            file.extension.lowercase() in forbiddenExtensions
+        }
+        check(forbiddenFiles.isEmpty()) {
+            "Executable plugin artifacts are forbidden: ${forbiddenFiles.joinToString { it.name }}"
+        }
+    }
+}
+
 tasks.register("quality") {
     group = "verification"
     description = "Runs module-boundary checks, forbidden-source checks, and every configured module check task."
-    dependsOn("checkModuleDependencies", "checkForbiddenImports")
+    dependsOn("checkModuleDependencies", "checkForbiddenImports", "checkPluginSandboxPolicy")
     dependsOn(
         configuredModuleProjects.map { module ->
             module.tasks.matching { task -> task.name == "check" }

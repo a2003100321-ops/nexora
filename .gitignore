@@ -1,5 +1,6 @@
 # Gradle and build outputs
 .gradle/
+.kotlin/
 **/build/
 build/
 out/

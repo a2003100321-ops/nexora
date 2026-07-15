@@ -3,16 +3,14 @@ plugins {
 }
 
 android {
-    namespace = "com.nexora.source.runtime"
+    namespace = "com.nexora.source.sandbox"
+    buildFeatures {
+        aidl = true
+    }
 }
 
 dependencies {
-    implementation(project(":core:logging"))
-    implementation(project(":core:network"))
-    implementation(project(":source:api"))
-    implementation(project(":source:config"))
     implementation(project(":source:plugin-api"))
-    implementation(project(":source:sandbox"))
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.kotlin.test.junit)

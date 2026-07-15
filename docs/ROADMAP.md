@@ -4,7 +4,7 @@
 
 ## M0：工程与治理基线
 
-状态：本地完成。
+状态：已完成并通过首次 GitHub 基线验收。
 
 - 新建独立 Nexora Git 仓库、GPL-3.0、NOTICE、THIRD_PARTY 和来源台账。
 - 固定 JDK 17、Gradle 9.5、AGP 9.3、Kotlin 2.3.21、API 26～36。
@@ -13,7 +13,7 @@
 
 ## M1：模块与应用基础
 
-状态：本地完成。
+状态：已完成并通过首次 GitHub 基线验收。
 
 - 建立两个应用和 core/source/player/storage/feature 模块骨架。
 - 建立允许依赖边、循环检测和危险引用扫描。
@@ -22,7 +22,7 @@
 
 ## M2：质量与兼容性测试基础
 
-状态：本地完成，远程 CI 待 GitHub 仓库获授权后首次运行。
+状态：已完成并通过首次 GitHub 基线验收。
 
 - 建立安全策略单测、全模块 Lint 和 `quality` 聚合门禁。
 - 建立合成旧配置语料、哈希清单和非文本/插件载荷拒绝规则。
@@ -31,11 +31,17 @@
 
 ## M3：旧数据源兼容桥
 
-状态：未开始，等待明确授权。
+状态：M3.1～M3.4 已完成代码与本地质量验收；设备级插件隔离验证仍按当前限制保留。
 
-候选工作包括配置解码、字段规范化、诊断报告和受控的兼容性评估。开始前必须先冻结输入格式、
-威胁模型和可接受的不兼容分类。未知 JAR、JavaScript、Python 插件的执行不因进入 M3 而自动获准；
-若未来确有必要，必须另立 ADR 并采用独立进程、最小权限、超时和网络代理等隔离方案。
+- M3.1 已建立旧配置导入、规范化、字段保留和错误隔离基础。
+- M3.2 已建立 type 0 XML、type 1 JSON、type 4 HTTP/ext 的统一 HTTP 契约与安全运行时。
+- M3.3 已建立可取消、可超时、单源失败隔离且防旧查询覆盖的全源搜索基础。
+- M3.4 建立 Spider V1 契约、production ServiceConnection/linkToDeath 宿主和
+  isolatedProcess/AIDL 原型；仅运行仓库内无害 fixture。
+- 原型网络与文件能力为 deny-all，不下载或执行未知互联网插件。
+- 三种 fixture 只是 JAR/JavaScript/Python 的契约与载荷形态原型，不是真实语言引擎。真正的 JAR
+  动态加载、通用 JavaScript/Python 引擎和扩大插件权限仍需用户确认与独立 ADR。
+- 设备级 UID 隔离及真实 worker crash 验收仍需模拟器或实机 instrumentation。
 
 ## 后续候选阶段
 
