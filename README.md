@@ -17,7 +17,14 @@ Nexora 是一个面向个人使用场景的 Android 影视播放器工程。项�
 - 第一阶段存储范围仅包括手机本地文件、SMB、WebDAV 和 NFS。
 - 不迁移 PickTV 的收藏、播放记录、设置或旧 Room 数据库。
 
-构建和模块说明将在 `docs/` 中维护。
+## 文档
+
+- [架构决策记录](docs/adr/README.md)
+- [模块说明](docs/MODULES.md)
+- [构建说明](docs/BUILDING.md)
+- [开发路线图](docs/ROADMAP.md)
+- [当前限制](docs/LIMITATIONS.md)
+- [PickTV 来源与隔离基线](docs/provenance/PICKTV_BASELINE.md)
 
 ## 许可证与来源
 
