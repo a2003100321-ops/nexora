@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss>
+  <class>
+    <ty id="1">电影</ty>
+    <ty id="2">剧集</ty>
+  </class>
+  <list page="2" pagecount="5" pagesize="20" recordcount="81">
+    <video>
+      <id>xml-vod-1</id>
+      <name>XML 示例影片</name>
+      <type>电影</type>
+      <pic>https://image.example/xml-vod-1.jpg</pic>
+      <note>完结</note>
+      <year>2026</year>
+      <area>中国</area>
+      <director>示例导演</director>
+      <actor>演员甲,演员乙</actor>
+      <des>XML 详情简介</des>
+      <dl>
+        <dd flag="线路A">第1集$https://media.example/one.m3u8#第2集$https://media.example/two.m3u8</dd>
+      </dl>
+    </video>
+  </list>
+</rss>

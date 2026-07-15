@@ -1,0 +1,40 @@
+{
+  "code": 1,
+  "class": [
+    {"type_id": "movie", "type_name": "电影"},
+    {"type_id": "series", "type_name": "剧集"}
+  ],
+  "filters": {
+    "movie": [
+      {
+        "key": "year",
+        "name": "年份",
+        "init": "2026",
+        "value": [
+          {"n": "全部", "v": "all"},
+          {"n": "2026", "v": "2026"}
+        ]
+      }
+    ]
+  },
+  "page": "3",
+  "pagecount": 7,
+  "limit": 20,
+  "total": 132,
+  "list": [
+    {
+      "vod_id": "json-vod-1",
+      "vod_name": "JSON 示例影片",
+      "vod_year": "2026",
+      "type_name": "电影",
+      "vod_area": "中国",
+      "vod_pic": "https://image.example/json-vod-1.jpg",
+      "vod_remarks": "更新至 2 集",
+      "vod_director": "JSON 导演",
+      "vod_actor": "演员丙,演员丁",
+      "vod_content": "JSON 详情简介",
+      "vod_play_from": "线路一$$$线路二",
+      "vod_play_url": "第一集$https://media.example/1.m3u8#第二集$https://media.example/2.m3u8$$$正片$https://media.example/movie.mp4"
+    }
+  ]
+}

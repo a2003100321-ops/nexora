@@ -11,5 +11,6 @@
 | [0004](0004-mobile-first-tv-shell.md) | 已接受 | 手机空壳先行，TV 当前只保留可编译入口 |
 | [0005](0005-no-legacy-user-data-migration.md) | 已接受 | 不迁移 PickTV 用户数据 |
 | [0006](0006-storage-scope.md) | 已接受 | 第一阶段存储范围限定为本地、SMB、WebDAV、NFS |
+| [0007](0007-http-source-security.md) | 已接受 | HTTP 数据源网络、超时、私网与日志安全边界 |
 
 状态使用“提议”“已接受”“已替代”或“已废弃”。每份 ADR 至少说明背景、决策和后果。

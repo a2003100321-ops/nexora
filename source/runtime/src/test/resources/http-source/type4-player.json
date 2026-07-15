@@ -1,0 +1,11 @@
+{
+  "url": "https://media.example/type4.m3u8",
+  "flag": "远端线路",
+  "parse": 1,
+  "jx": 0,
+  "format": "application/vnd.apple.mpegurl",
+  "header": {
+    "Referer": "https://source.example/",
+    "User-Agent": "Nexora-Test"
+  }
+}
