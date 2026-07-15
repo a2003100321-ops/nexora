@@ -1,0 +1,106 @@
+{
+  "spider": "./plugins/global.jar",
+  "sites": [
+    {
+      "key": "xml",
+      "name": "XML Source",
+      "type": 0,
+      "api": "./api/xml",
+      "ext": {
+        "mode": "safe"
+      },
+      "timeout": 3,
+      "quickSearch": 0,
+      "categories": [
+        "Movie"
+      ],
+      "header": {
+        "X-Test": "one"
+      }
+    },
+    {
+      "key": "json",
+      "type": 1,
+      "api": "../api/json"
+    },
+    {
+      "key": "json-ext",
+      "type": 4,
+      "api": "https://example.invalid/type4",
+      "playUrl": "./play"
+    }
+  ],
+  "parses": [
+    {
+      "name": "json-parser",
+      "type": 1,
+      "url": "./parse",
+      "ext": {
+        "flag": [
+          "qq"
+        ],
+        "header": {
+          "Referer": "https://example.invalid"
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "name": "rule",
+      "hosts": [
+        "example.invalid"
+      ],
+      "regex": [
+        "m3u8"
+      ]
+    }
+  ],
+  "headers": [
+    {
+      "host": "example.invalid",
+      "header": {
+        "X-Test": "value"
+      }
+    }
+  ],
+  "hosts": [
+    "example.invalid"
+  ],
+  "flags": [
+    "qq"
+  ],
+  "danmaku": "./danmaku",
+  "doh": [
+    {
+      "name": "dns",
+      "url": "https://dns.example.invalid/query"
+    }
+  ],
+  "proxy": [
+    {
+      "name": "proxy",
+      "url": "https://proxy.example.invalid"
+    }
+  ],
+  "ads": [
+    "ads.example.invalid"
+  ],
+  "wallpaper": "./wall.jpg",
+  "logo": "../logo.png",
+  "notice": "Synthetic notice",
+  "lives": [
+    {
+      "name": "Synthetic live",
+      "url": "https://example.invalid/live.txt"
+    }
+  ],
+  "futureFeature": {
+    "z": 1,
+    "a": [
+      3,
+      2,
+      1
+    ]
+  }
+}

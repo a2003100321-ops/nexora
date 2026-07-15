@@ -1,0 +1,19 @@
+{
+  "sites": [
+    {
+      "key": "local",
+      "name": "Local",
+      "type": 1,
+      "api": "https://example.invalid/local"
+    },
+    "./remote/remote-sites.json",
+    "./remote/missing.json"
+  ],
+  "parses": "./remote/remote-parses.json",
+  "rules": [
+    {
+      "name": "local-rule"
+    },
+    "./remote/remote-rules.json"
+  ]
+}

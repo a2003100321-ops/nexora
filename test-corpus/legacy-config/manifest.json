@@ -53,6 +53,94 @@
       "kind": "MALFORMED",
       "expectation": "REJECT",
       "sha256": "285889be4ea7448c39d39c51c59efd14bf76815275091f11344e69ce000c18ac"
+    },
+    {
+      "id": "valid-full-golden",
+      "path": "fixtures/valid/full-golden.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "cf9248f8fe736e189606996916da8503774949419b66d95616399e1f7f49e1ba"
+    },
+    {
+      "id": "decoder-base64-marker",
+      "path": "fixtures/decoder/base64-marker.txt",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "3d0b0cb07efa185d65ed6887b6a56306f824e812b0db3ba9c9c6df7b78eecc90"
+    },
+    {
+      "id": "decoder-base64-plain",
+      "path": "fixtures/decoder/base64-plain.txt",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "943c6394264aa61575223887f517b683f5fe5dc850503970fca1dd10f677cad8"
+    },
+    {
+      "id": "decoder-aes-2423",
+      "path": "fixtures/decoder/aes-2423.txt",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "5ef168f09eed5f35cd0614f35681985d84123631118bd243065818f3c02b8f49"
+    },
+    {
+      "id": "valid-remote-arrays",
+      "path": "fixtures/valid/remote-arrays.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "bf9138a838cefdd325f772711e329229cf7be7018c43247be0c6bd45e8405b25"
+    },
+    {
+      "id": "remote-sites-array",
+      "path": "fixtures/remote/remote-sites.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "03b439d2d167b151171ecb63485e0368f70bfbd781d9ab440722d023adbd660e"
+    },
+    {
+      "id": "remote-parses-array",
+      "path": "fixtures/remote/remote-parses.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "6f3e244989dc477151e9ae76d01b6a58c3da565b4b42c0cd701c8177a074c0c3"
+    },
+    {
+      "id": "remote-rules-array",
+      "path": "fixtures/remote/remote-rules.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "36f43f4fcd6b420099e5d8074acd9ab26ef46a61f037a67aa2f726fb1add15d1"
+    },
+    {
+      "id": "valid-unknown-fields",
+      "path": "fixtures/valid/unknown-fields.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "e089e55a913409282e23f2158808b057a7ef2b0e6d782e758b2dd63b0249729b"
+    },
+    {
+      "id": "valid-with-bad-site-and-parse",
+      "path": "fixtures/malformed/bad-site-and-parse.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "a73aadbb023cb379f29d004e3d0f0ab167f353d2e0f56219a638504bf5f1f897"
+    },
+    {
+      "id": "malformed-invalid-aes-2423",
+      "path": "fixtures/malformed/invalid-2423.txt",
+      "synthetic": true,
+      "kind": "MALFORMED",
+      "expectation": "REJECT",
+      "sha256": "2103cedb19ecee15133817381f69531a816fd8826ebe19a1b3c556418131c250"
     }
   ]
 }

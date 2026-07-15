@@ -64,7 +64,13 @@ subprojects {
 }
 
 val allowedModuleEdges = mapOf(
-    ":app-mobile" to setOf(":core:designsystem", ":feature:home"),
+    ":app-mobile" to setOf(
+        ":core:designsystem",
+        ":feature:home",
+        ":feature:sources",
+        ":source:api",
+        ":source:runtime",
+    ),
     ":app-tv" to setOf(":core:designsystem"),
     ":core:common" to emptySet(),
     ":core:database" to setOf(":core:logging", ":core:model"),

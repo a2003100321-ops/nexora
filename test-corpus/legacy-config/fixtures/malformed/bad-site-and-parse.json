@@ -1,0 +1,43 @@
+{
+  "sites": [
+    {
+      "key": "good-site",
+      "name": "Good Site",
+      "type": 1,
+      "api": "https://example.invalid/good"
+    },
+    {
+      "name": "Missing Key",
+      "type": 1
+    },
+    {
+      "key": "bad-type",
+      "type": "not-a-number"
+    },
+    {
+      "key": "good-after-errors",
+      "type": 4,
+      "api": "https://example.invalid/after"
+    }
+  ],
+  "parses": [
+    {
+      "name": "good-parse",
+      "type": 1,
+      "url": "https://example.invalid/parse"
+    },
+    {
+      "type": 1,
+      "url": "https://example.invalid/missing-name"
+    },
+    {
+      "name": "bad-type",
+      "type": {}
+    },
+    {
+      "name": "good-after-errors",
+      "type": 0,
+      "url": "https://example.invalid/parse-after"
+    }
+  ]
+}

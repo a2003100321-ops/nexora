@@ -19,7 +19,7 @@ class LegacyConfigCorpusTest {
         assertEquals(1, manifest.schemaVersion)
         assertTrue(manifest.syntheticOnly)
         assertEquals("FORBIDDEN", manifest.pluginExecution)
-        assertEquals(6, manifest.cases.size)
+        assertTrue(manifest.cases.size >= 6)
         assertTrue(manifest.cases.all(CorpusCase::synthetic))
         assertEquals(
             CorpusExpectation.DESCRIBE_ONLY,

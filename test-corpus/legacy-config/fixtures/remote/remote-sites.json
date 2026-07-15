@@ -1,0 +1,14 @@
+[
+  {
+    "key": "remote-one",
+    "name": "Remote One",
+    "type": 0,
+    "api": "../api/remote-one"
+  },
+  {
+    "key": "remote-two",
+    "name": "Remote Two",
+    "type": 4,
+    "api": "https://example.invalid/remote-two"
+  }
+]
