@@ -1,0 +1,10 @@
+{
+  "sites": [],
+  "lives": [
+    {
+      "name": "Synthetic live source",
+      "type": 0,
+      "url": "https://example.invalid/live.txt"
+    }
+  ]
+}

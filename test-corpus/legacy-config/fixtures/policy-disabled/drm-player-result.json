@@ -1,0 +1,7 @@
+{
+  "url": "https://example.invalid/video.mpd",
+  "drm": {
+    "key": "https://example.invalid/license",
+    "type": "widevine"
+  }
+}

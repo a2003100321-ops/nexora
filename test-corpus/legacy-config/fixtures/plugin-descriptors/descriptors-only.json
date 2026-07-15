@@ -1,0 +1,27 @@
+{
+  "spider": "https://example.invalid/synthetic.jar;00000000000000000000000000000000",
+  "sites": [
+    {
+      "key": "synthetic_jar",
+      "name": "Synthetic JAR descriptor",
+      "type": 3,
+      "api": "csp_Synthetic"
+    },
+    {
+      "key": "synthetic_js",
+      "name": "Synthetic JavaScript descriptor",
+      "type": 3,
+      "api": "https://example.invalid/synthetic.js"
+    },
+    {
+      "key": "synthetic_python",
+      "name": "Synthetic Python descriptor",
+      "type": 3,
+      "api": "https://example.invalid/synthetic.py"
+    }
+  ],
+  "_nexoraFixturePolicy": {
+    "mode": "DESCRIPTORS_ONLY",
+    "execute": false
+  }
+}

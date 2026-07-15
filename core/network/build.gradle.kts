@@ -9,4 +9,5 @@ kotlin {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:logging"))
+    testImplementation(libs.kotlin.test.junit)
 }

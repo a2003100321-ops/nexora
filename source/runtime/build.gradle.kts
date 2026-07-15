@@ -11,4 +11,5 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":source:api"))
     implementation(project(":source:config"))
+    testImplementation(libs.kotlin.test.junit)
 }

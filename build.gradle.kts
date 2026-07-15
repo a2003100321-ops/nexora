@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.tasks.PathSensitivity
 
 plugins {
     alias(libs.plugins.android.application) apply false
@@ -89,6 +90,47 @@ val allowedModuleEdges = mapOf(
     ":storage:webdav" to setOf(":core:logging", ":core:network", ":storage:api"),
 )
 
+val configuredModuleProjects = subprojects.filter { module -> module.buildFile.isFile }
+
+val productionSourceTrees = configuredModuleProjects.associateWith { module ->
+    module.fileTree(module.projectDir.resolve("src")) {
+        include("**/*.kt", "**/*.java")
+        exclude(
+            "test*/**",
+            "androidTest*/**",
+            "testFixtures*/**",
+            "generated*/**",
+            "**/generated/**",
+            "**/build/**",
+        )
+    }
+}
+
+val globallyForbiddenSourceReferences = linkedMapOf(
+    "PickTV package com.fongmi" to """\bcom\.fongmi\b""",
+    "PickTV/CatVod package com.github.catvod" to """\bcom\.github\.catvod\b""",
+)
+
+val featureForbiddenSourceReferences = linkedMapOf(
+    "Media3 implementation API" to """\bandroidx\.media3\b""",
+    "Room implementation API" to """\bandroidx\.room\b""",
+    "OkHttp implementation API" to """\bokhttp3\b""",
+)
+
+val playerApiForbiddenSourceReferences = linkedMapOf(
+    "Media3 implementation API" to """\bandroidx\.media3\b""",
+)
+
+val sourceRuntimeForbiddenExecutionReferences = linkedMapOf(
+    "DexClassLoader" to """\b(?:dalvik\.system\.)?DexClassLoader\b""",
+    "PathClassLoader" to """\b(?:dalvik\.system\.)?PathClassLoader\b""",
+    "URLClassLoader" to """\b(?:java\.net\.)?URLClassLoader\b""",
+    "ScriptEngine" to """\b(?:javax\.script\.)?ScriptEngine(?:Manager)?\b""",
+    "ProcessBuilder" to """\b(?:java\.lang\.)?ProcessBuilder\b""",
+    "Runtime.getRuntime" to """\b(?:java\.lang\.)?Runtime\s*\.\s*getRuntime\s*\(""",
+    "exec invocation" to """\bexec\s*\(""",
+)
+
 tasks.register("checkModuleDependencies") {
     group = "verification"
     description = "Verifies the allowed Nexora module edges and rejects dependency cycles."
@@ -137,4 +179,72 @@ tasks.register("checkModuleDependencies") {
         graph.keys.sorted().forEach { module -> visit(module, emptyList()) }
         logger.lifecycle("Verified ${graph.size} modules: allowed edges only, no cycles.")
     }
+}
+
+tasks.register("checkForbiddenImports") {
+    group = "verification"
+    description = "Scans production Kotlin/Java sources for forbidden architecture and execution references."
+
+    inputs.files(productionSourceTrees.values)
+        .withPropertyName("productionSources")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    doLast {
+        val violations = linkedSetOf<String>()
+        var scannedFileCount = 0
+
+        productionSourceTrees.entries
+            .sortedBy { (module, _) -> module.path }
+            .forEach { (module, sourceTree) ->
+                val rules = buildList {
+                    addAll(globallyForbiddenSourceReferences.entries)
+                    if (module.path.startsWith(":feature:")) {
+                        addAll(featureForbiddenSourceReferences.entries)
+                    }
+                    if (module.path == ":player:api") {
+                        addAll(playerApiForbiddenSourceReferences.entries)
+                    }
+                    if (module.path == ":source:runtime") {
+                        addAll(sourceRuntimeForbiddenExecutionReferences.entries)
+                    }
+                }
+
+                sourceTree.files.sortedBy { file -> file.invariantSeparatorsPath }.forEach { file ->
+                    scannedFileCount += 1
+                    val content = file.readText()
+                    val relativePath = file.relativeTo(module.projectDir).invariantSeparatorsPath
+
+                    rules.forEach { (description, expression) ->
+                        Regex(expression).findAll(content).forEach { match ->
+                            val lineNumber = content.take(match.range.first).count { character ->
+                                character == '\n'
+                            } + 1
+                            violations += "${module.path}:$relativePath:$lineNumber [$description]"
+                        }
+                    }
+                }
+            }
+
+        check(violations.isEmpty()) {
+            buildString {
+                appendLine("Forbidden production source references found:")
+                violations.sorted().forEach { violation -> appendLine(" - $violation") }
+            }.trimEnd()
+        }
+
+        logger.lifecycle(
+            "Scanned $scannedFileCount production Kotlin/Java files: no forbidden references.",
+        )
+    }
+}
+
+tasks.register("quality") {
+    group = "verification"
+    description = "Runs module-boundary checks, forbidden-source checks, and every configured module check task."
+    dependsOn("checkModuleDependencies", "checkForbiddenImports")
+    dependsOn(
+        configuredModuleProjects.map { module ->
+            module.tasks.matching { task -> task.name == "check" }
+        },
+    )
 }

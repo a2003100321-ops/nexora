@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "suite": "legacy-config",
+  "safety": {
+    "syntheticOnly": true,
+    "pluginExecution": "FORBIDDEN"
+  },
+  "fixtures": [
+    {
+      "id": "valid-minimal",
+      "path": "fixtures/valid/minimal.json",
+      "synthetic": true,
+      "kind": "VALID_CONFIG",
+      "expectation": "ACCEPT",
+      "sha256": "3009f2544d840a38a6b13b1e6371e5268e1557e3a973988bc01f013ec587ad90"
+    },
+    {
+      "id": "policy-disabled-live",
+      "path": "fixtures/policy-disabled/live.json",
+      "synthetic": true,
+      "kind": "POLICY_DISABLED",
+      "expectation": "ACCEPT_WITH_DISABLED_FIELDS",
+      "sha256": "43b0f9dfdef68e1b51011c95186721b080cc8b9f8639a65473c093c5cf1badc5"
+    },
+    {
+      "id": "policy-disabled-notice",
+      "path": "fixtures/policy-disabled/notice.json",
+      "synthetic": true,
+      "kind": "POLICY_DISABLED",
+      "expectation": "ACCEPT_WITH_DISABLED_FIELDS",
+      "sha256": "8ee6be57131ef4bdd91554b38031345767c40c0ba9a6fc9a01916aaebf6d76c4"
+    },
+    {
+      "id": "policy-disabled-drm",
+      "path": "fixtures/policy-disabled/drm-player-result.json",
+      "synthetic": true,
+      "kind": "POLICY_DISABLED",
+      "expectation": "ACCEPT_WITH_DISABLED_FIELDS",
+      "sha256": "2e69c39c9660dc991e12f0b493d65d4be97b9deac37216277cca50cd579053e0"
+    },
+    {
+      "id": "plugin-descriptors-only",
+      "path": "fixtures/plugin-descriptors/descriptors-only.json",
+      "synthetic": true,
+      "kind": "PLUGIN_DESCRIPTORS_ONLY",
+      "expectation": "DESCRIBE_ONLY",
+      "sha256": "a2402702f862d9873646dd271bf72bbdd1926162787bbc7c88dfbda1f4334ee6"
+    },
+    {
+      "id": "malformed-truncated",
+      "path": "fixtures/malformed/truncated.json",
+      "synthetic": true,
+      "kind": "MALFORMED",
+      "expectation": "REJECT",
+      "sha256": "285889be4ea7448c39d39c51c59efd14bf76815275091f11344e69ce000c18ac"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "sites": [
+    {
+      "key": "synthetic_minimal",
+      "name": "Synthetic minimal source",
+      "type": 1,
+      "api": "https://example.invalid/api"
+    }
+  ],
+  "parses": []
+}

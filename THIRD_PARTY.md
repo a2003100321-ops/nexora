@@ -7,6 +7,10 @@
 | Android SDK / AndroidX | Android 平台与 Jetpack 基础组件 | Google Maven / Android SDK Manager | 各组件许可证，以发布物为准 | 计划由 Gradle/SDK Manager 获取 |
 | Kotlin | 主要开发语言 | Gradle Plugin Portal / Maven | Apache-2.0 | 计划由 Gradle 获取 |
 | Gradle | 构建系统与 Wrapper | `services.gradle.org` | Apache-2.0 | 计划使用官方 Wrapper |
+| `actions/checkout` | CI 检出仓库源码 | GitHub Actions Marketplace | MIT | CI 使用 `v4` |
+| `actions/setup-java` | CI 配置 Temurin JDK 17 | GitHub Actions Marketplace | MIT | CI 使用 `v4` |
+| `gradle/actions/setup-gradle` | CI 配置 Gradle 与构建缓存 | GitHub Actions Marketplace | 主体 MIT；内含受单独许可约束的缓存组件，以上游 `LICENSE` / `NOTICE` 为准 | CI 使用 `v4` |
+| `actions/upload-artifact` | 上传 CI 生成的 Debug APK | GitHub Actions Marketplace | MIT | CI 使用 `v4`，不用于发布或签名 |
 | Jetpack Compose | 手机与共享 UI 基础 | Google Maven | Apache-2.0 | M1 基础主题与空壳使用 |
 | AndroidX Media3 | 播放器模块技术基线 | Google Maven | Apache-2.0 | M1 仅建立适配模块，不实现业务播放 |
 | PickTV 1.3.3 | 兼容性审计与格式研究基线 | 用户提供的本地源码快照 | GPL-3.0 | 不导入业务源码或二进制 |

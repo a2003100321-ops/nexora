@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(project(":core:logging"))
     implementation(project(":core:model"))
+    testImplementation(libs.kotlin.test.junit)
 }

@@ -9,4 +9,14 @@ kotlin {
 dependencies {
     implementation(project(":source:api"))
     implementation(project(":source:config"))
+
+    testImplementation(libs.kotlin.test.junit)
+}
+
+tasks.test {
+    useJUnit()
+    systemProperty(
+        "nexora.legacyConfigCorpus",
+        rootProject.layout.projectDirectory.dir("test-corpus/legacy-config").asFile.absolutePath,
+    )
 }

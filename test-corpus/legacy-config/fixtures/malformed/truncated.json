@@ -1,0 +1,6 @@
+{
+  "sites": [
+    {
+      "key": "synthetic_truncated",
+      "type": 1,
+      "api": "https://example.invalid/api"
