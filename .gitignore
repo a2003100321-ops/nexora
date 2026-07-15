@@ -1,0 +1,61 @@
+# Gradle and build outputs
+.gradle/
+**/build/
+build/
+out/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.hprof
+
+# Local Android and IDE state
+local.properties
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing material and secrets
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+keystore.properties
+signing.properties
+secrets.properties
+google-services.json
+service-account*.json
+.env
+.env.*
+!.env.example
+*token*.txt
+*cookie*.txt
+
+# Logs and local diagnostics
+*.log
+logs/
+user-logs/
+
+# Unreviewed native or Android binaries
+*.aar
+*.so
+
+# Upstream archives and extracted legacy source must stay outside this repo
+/PickTV-*/
+/PickTV-*.zip
+/PickTV-*.tar
+/PickTV-*.tar.gz
+/PickTV-*.tgz
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini

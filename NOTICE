@@ -1,0 +1,22 @@
+Nexora
+Copyright (C) 2026 Nexora contributors
+
+This project is licensed under the GNU General Public License version 3.
+See the LICENSE file for the complete license text.
+
+Project provenance and acknowledgements
+---------------------------------------
+
+Nexora is a new Android project whose legacy source-compatibility goals were
+informed by PickTV 1.3.3. PickTV states that it is based on FongMi/TV:
+
+  PickTV: source snapshot supplied by the project owner for local audit
+  FongMi/TV: https://github.com/FongMi/TV
+
+Thanks to the FongMi/TV authors, contributors, and the PickTV maintainers.
+
+At the M0-M2 baseline, no PickTV business implementation, binaries, signing
+material, user data, or proprietary configuration is included in this
+repository. If source is later imported into an isolated compatibility bridge,
+its origin, license, commit or archive hash, modifications, and required
+notices must be recorded before the import is committed.
