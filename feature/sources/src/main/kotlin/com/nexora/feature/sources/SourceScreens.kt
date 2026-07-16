@@ -163,6 +163,7 @@ internal fun SourceManagementScreen(
     onConfirmDelete: (LegacyConfigId) -> Unit,
     onClearDiagnostics: () -> Unit,
     onDismissMessage: () -> Unit,
+    onOpenSearch: () -> Unit,
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -197,6 +198,31 @@ internal fun SourceManagementScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodySmall,
                         )
+                    }
+                }
+            }
+            item(key = "search-test") {
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.sources_search_test_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            text = stringResource(R.string.sources_search_test_body),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        OutlinedButton(
+                            onClick = onOpenSearch,
+                            enabled = !busy,
+                        ) {
+                            Text(stringResource(R.string.sources_search_test_action))
+                        }
                     }
                 }
             }
@@ -833,6 +859,7 @@ private fun issueLabel(code: CompatibilityIssueCode): String = stringResource(
             R.string.sources_issue_preserved_not_executed
         }
 
+        CompatibilityIssueCode.RESOURCE_LIMIT -> R.string.sources_issue_resource_limit
         CompatibilityIssueCode.STORAGE_FAILURE -> R.string.sources_issue_storage_failure
     },
 )

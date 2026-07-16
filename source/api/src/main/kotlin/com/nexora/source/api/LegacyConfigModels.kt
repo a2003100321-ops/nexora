@@ -57,6 +57,7 @@ public enum class CompatibilityIssueCode {
     FIELD_TYPE_MISMATCH,
     UNSUPPORTED_SOURCE_TYPE,
     POLICY_PRESERVED_NOT_EXECUTED,
+    RESOURCE_LIMIT,
     STORAGE_FAILURE,
 }
 

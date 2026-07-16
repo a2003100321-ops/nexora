@@ -3,6 +3,7 @@ package com.nexora.feature.sources
 internal enum class SourcesDestination {
     ONBOARDING,
     MANAGEMENT,
+    SEARCH_TEST,
 }
 
 internal enum class ImportEditor {

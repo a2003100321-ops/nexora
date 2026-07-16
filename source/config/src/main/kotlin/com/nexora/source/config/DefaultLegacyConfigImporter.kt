@@ -43,8 +43,10 @@ public class DefaultLegacyConfigImporter(
     public companion object {
         public const val MAX_INPUT_BYTES: Int = 2 * 1024 * 1024
         public const val MAX_JSON_DEPTH: Int = 64
+        public const val MAX_SITES_PER_CONFIG: Int = 500
         private const val MAX_REMOTE_REFERENCES: Int = 32
         private const val MAX_REMOTE_DEPTH: Int = 8
+        private const val MAX_SITE_KEY_CHARS: Int = 256
         private const val DEFAULT_TIMEOUT_MILLIS: Long = 15_000L
 
         private val BASE64_MARKER = Regex("[A-Za-z0-9]{8}\\*\\*")
@@ -121,7 +123,15 @@ public class DefaultLegacyConfigImporter(
         }
 
         val originalCanonical = canonical(root)
-        val configId = LegacyConfigId(sha256(originalCanonical.toByteArray(StandardCharsets.UTF_8)))
+        val configId = LegacyConfigId(
+            sha256(
+                configIdentityBytes(
+                    originalCanonical = originalCanonical,
+                    kind = kind,
+                    origin = origin,
+                ),
+            ),
+        )
         val expandedMap = root.toMutableMap()
         val expandedFields = linkedMapOf<String, List<ExpandedObject>>()
         val referenceBudget = ReferenceBudget()
@@ -425,10 +435,25 @@ public class DefaultLegacyConfigImporter(
     ): List<LegacySiteDescriptor> {
         val result = mutableListOf<LegacySiteDescriptor>()
         val keys = mutableSetOf<String>()
-        objects.forEach { item ->
+        if (objects.size > MAX_SITES_PER_CONFIG) {
+            diagnostics += recoverable(
+                CompatibilityIssueCode.RESOURCE_LIMIT,
+                "$.sites",
+                "站点数量超过 $MAX_SITES_PER_CONFIG 条安全上限，超出部分已保留但不会启用。",
+            )
+        }
+        objects.take(MAX_SITES_PER_CONFIG).forEach { item ->
             val key = scalar(item.value["key"])?.trim().orEmpty()
             if (key.isEmpty()) {
                 diagnostics += recoverable(CompatibilityIssueCode.SITE_INVALID, item.path, "站点缺少 key，已跳过该条目。")
+                return@forEach
+            }
+            if (key.length > MAX_SITE_KEY_CHARS || key.any(Char::isISOControl)) {
+                diagnostics += recoverable(
+                    CompatibilityIssueCode.SITE_INVALID,
+                    "${item.path}.key",
+                    "站点 key 过长或包含控制字符，已跳过该条目。",
+                )
                 return@forEach
             }
             if (!keys.add(key)) {
@@ -642,6 +667,45 @@ public class DefaultLegacyConfigImporter(
             val host = parsed.host ?: return@runCatching null
             URI(scheme, null, host, parsed.port, null, null, null).toASCIIString() + "/…"
         }.getOrNull() ?: "远程配置地址（路径已隐藏）"
+    }
+
+    private fun configIdentityBytes(
+        originalCanonical: String,
+        kind: ConfigImportKind,
+        origin: String?,
+    ): ByteArray {
+        val stableRemoteOrigin = if (kind == ConfigImportKind.REMOTE_URL) {
+            canonicalRemoteOriginForIdentity(origin)
+        } else {
+            null
+        }
+        val identity = stableRemoteOrigin?.let { value -> "remote-origin\u0000$value" }
+            ?: originalCanonical
+        return identity.toByteArray(StandardCharsets.UTF_8)
+    }
+
+    private fun canonicalRemoteOriginForIdentity(origin: String?): String? {
+        if (origin.isNullOrBlank() || origin.any(Char::isISOControl)) return null
+        return runCatching {
+            val parsed = URI(origin.trim()).normalize()
+            if (!parsed.scheme.equals("https", ignoreCase = true) ||
+                parsed.host.isNullOrBlank() ||
+                parsed.rawUserInfo != null ||
+                parsed.rawFragment != null
+            ) {
+                return@runCatching null
+            }
+            val normalizedPort = parsed.port.takeUnless { port -> port == 443 }
+            URI(
+                "https",
+                null,
+                parsed.host.lowercase(Locale.ROOT),
+                normalizedPort ?: -1,
+                parsed.rawPath?.ifEmpty { "/" } ?: "/",
+                parsed.rawQuery,
+                null,
+            ).toASCIIString()
+        }.getOrNull()
     }
 
     private fun extensionText(element: JsonElement?): String = when (element) {

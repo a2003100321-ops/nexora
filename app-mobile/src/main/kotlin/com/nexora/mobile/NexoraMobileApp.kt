@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nexora.feature.home.MobileHomeShell
 import com.nexora.feature.sources.MobileSourcesFlow
+import com.nexora.source.api.AllSourcesSearcher
+import com.nexora.source.api.LegacyHttpSourceGateway
 import com.nexora.source.api.LegacySourceRepository
 
 private enum class MobileDestination {
@@ -34,6 +36,8 @@ private enum class MobileDestination {
 @Composable
 public fun NexoraMobileApp(
     repository: LegacySourceRepository,
+    searcher: AllSourcesSearcher,
+    gateway: LegacyHttpSourceGateway,
     modifier: Modifier = Modifier,
 ) {
     val sourceState by repository.state.collectAsStateWithLifecycle()
@@ -57,6 +61,8 @@ public fun NexoraMobileApp(
         )
         MobileDestination.SOURCES -> MobileSourcesFlow(
             repository = repository,
+            searcher = searcher,
+            gateway = gateway,
             onFinished = { destination = MobileDestination.LANDING },
             modifier = modifier,
         )

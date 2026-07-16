@@ -9,10 +9,14 @@ import com.nexora.core.designsystem.NexoraThemeMode
 public class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val repository = (application as NexoraApplication).sourceRepository
+        val sourceRuntime = (application as NexoraApplication).sourceRuntime
         setContent {
             NexoraTheme(mode = NexoraThemeMode.SYSTEM) {
-                NexoraMobileApp(repository = repository)
+                NexoraMobileApp(
+                    repository = sourceRuntime.repository,
+                    searcher = sourceRuntime.allSourcesSearcher,
+                    gateway = sourceRuntime.httpGateway,
+                )
             }
         }
     }

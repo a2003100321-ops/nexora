@@ -179,16 +179,39 @@ public class AndroidLegacySourceRepository private constructor(
             return result
         }
         val current = mutableState.value
-        val importedIds = result.imported.map(LegacyConfigSnapshot::id).toSet()
+        val existingById = current.configurations.associateBy(LegacyConfigSnapshot::id)
+        val importedWithPreservedActivation = result.imported.map { imported ->
+            val existingSites = existingById[imported.id]
+                ?.fields
+                ?.sites
+                ?.associateBy { site -> site.sourceKey }
+                .orEmpty()
+            imported.copy(
+                fields = imported.fields.copy(
+                    sites = imported.fields.sites.map { site ->
+                        val previous = existingSites[site.sourceKey] ?: return@map site
+                        site.copy(
+                            state = site.state.copy(
+                                userActivation = previous.state.userActivation,
+                            ),
+                        )
+                    },
+                ),
+            )
+        }
+        val acceptedResult = result.copy(imported = importedWithPreservedActivation)
+        val importedIds = importedWithPreservedActivation.map(LegacyConfigSnapshot::id).toSet()
         val updated = current.copy(
             onboardingCompleted = true,
-            configurations = (current.configurations.filterNot { it.id in importedIds } + result.imported)
+            configurations = (
+                current.configurations.filterNot { it.id in importedIds } + importedWithPreservedActivation
+            )
                 .sortedBy(LegacyConfigSnapshot::displayName),
             lastImportDiagnostics = result.diagnostics,
         )
         return if (persist(updated)) {
             mutableState.value = updated
-            result
+            acceptedResult
         } else {
             val storageDiagnostic = storageFailure()
             mutableState.value = current.copy(lastImportDiagnostics = result.diagnostics + storageDiagnostic)
@@ -313,9 +336,14 @@ public class AndroidLegacySourceRepository private constructor(
 
     public companion object {
         public fun create(context: Context): AndroidLegacySourceRepository =
-            AndroidLegacySourceRepository(
+            create(context, NetworkTransports.create())
+
+        internal fun create(
+            context: Context,
+            transport: SafeHttpTransport,
+        ): AndroidLegacySourceRepository = AndroidLegacySourceRepository(
                 store = FileLegacySourceStore(context.applicationContext.noBackupFilesDir),
-                transport = NetworkTransports.create(),
+                transport = transport,
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
             )
 

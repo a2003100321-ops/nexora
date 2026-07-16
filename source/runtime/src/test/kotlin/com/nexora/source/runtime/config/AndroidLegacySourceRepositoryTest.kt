@@ -1,9 +1,12 @@
 package com.nexora.source.runtime.config
 
 import com.nexora.core.network.SafeHttpTransport
+import com.nexora.core.network.NetworkResponse
+import com.nexora.core.network.NetworkResult
 import com.nexora.source.api.SourceSearchCapability
 import com.nexora.source.api.SourceUserActivation
 import java.nio.file.Files
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -49,6 +52,50 @@ class AndroidLegacySourceRepositoryTest {
                 SourceUserActivation.DISABLED,
                 restoredConfiguration.fields.sites.single().state.userActivation,
             )
+        } finally {
+            repositoryScope.cancel()
+            directory.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun refreshingTheSameRemoteOriginKeepsIdentityAndUserActivation() = runBlocking {
+        val directory = Files.createTempDirectory("nexora-remote-refresh").toFile()
+        val calls = AtomicInteger()
+        val payloads = listOf(
+            """{"sites":[{"key":"one","name":"First","type":1,"api":"https://source.invalid/api"}]}""",
+            """{"future":true,"sites":[{"key":"one","name":"Updated","type":1,"api":"https://source.invalid/api"}]}""",
+        )
+        val transport = SafeHttpTransport {
+            val payload = payloads[calls.getAndIncrement().coerceAtMost(payloads.lastIndex)]
+            NetworkResult.Success(
+                NetworkResponse(
+                    statusCode = 200,
+                    headers = emptyMap(),
+                    body = payload.toByteArray(),
+                    redactedUrl = "https://config.invalid/…",
+                ),
+            )
+        }
+        val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            val repository = AndroidLegacySourceRepository.createForTest(directory, transport, repositoryScope)
+            withTimeout(5_000L) { repository.state.first { state -> state.isInitialized } }
+
+            val first = repository.importRemoteUrl("https://config.invalid/config.json?channel=stable")
+                .imported.single()
+            val firstSite = first.fields.sites.single()
+            repository.setSourceEnabled(first.id, firstSite.sourceKey, enabled = false)
+
+            val refreshed = repository.importRemoteUrl("https://config.invalid/config.json?channel=stable")
+                .imported.single()
+            val refreshedSite = refreshed.fields.sites.single()
+
+            assertEquals(first.id, refreshed.id)
+            assertEquals(firstSite.sourceKey, refreshedSite.sourceKey)
+            assertEquals("Updated", refreshedSite.name)
+            assertEquals(SourceUserActivation.DISABLED, refreshedSite.state.userActivation)
+            assertEquals(1, repository.state.value.configurations.size)
         } finally {
             repositoryScope.cancel()
             directory.deleteRecursively()

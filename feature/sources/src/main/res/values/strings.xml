@@ -65,6 +65,7 @@
     <string name="sources_issue_field_type_mismatch">字段类型不匹配</string>
     <string name="sources_issue_unsupported_source_type">数据源类型暂不支持</string>
     <string name="sources_issue_preserved_not_executed">已保留但不会执行</string>
+    <string name="sources_issue_resource_limit">安全资源上限</string>
     <string name="sources_issue_storage_failure">本机保存失败</string>
 
     <string name="sources_configurations_title">已导入配置</string>
@@ -95,4 +96,42 @@
     <string name="sources_site_load_failed">加载失败</string>
     <string name="sources_site_temporarily_unavailable">暂时不可用</string>
     <string name="sources_site_toggle_description">切换站点“%1$s”的启用状态</string>
+
+    <string name="sources_search_test_title">全源搜索测试</string>
+    <string name="sources_search_test_body">同时测试所有已启用且支持搜索的 HTTP 数据源。结果不会自动合并，也不会启动播放器。</string>
+    <string name="sources_search_test_action">进入搜索测试</string>
+    <string name="sources_search_back">返回数据源管理</string>
+    <string name="sources_search_input">搜索关键词</string>
+    <string name="sources_search_hint">输入片名，停顿后自动搜索</string>
+    <string name="sources_search_cancel">取消搜索</string>
+    <string name="sources_search_retry">重新搜索</string>
+    <string name="sources_search_idle">输入关键词后，将同时搜索所有可用数据源。</string>
+    <string name="sources_search_debouncing">正在等待输入完成…</string>
+    <string name="sources_search_running">正在搜索，单个数据源失败不会影响其他结果。</string>
+    <string name="sources_search_cancelled">搜索已取消。你可以修改关键词或重新搜索。</string>
+    <string name="sources_search_no_sources">没有已启用且支持搜索的 type 0、1、4 数据源。</string>
+    <string name="sources_search_no_results">没有找到结果。可以更换关键词后重试。</string>
+    <string name="sources_search_source_states">数据源状态</string>
+    <string name="sources_search_source_limit">可搜索站点超过 500 个，本次仅运行前 500 个；请精简配置后再试。</string>
+    <string name="sources_search_results">搜索结果（%1$d）</string>
+    <string name="sources_search_loading">加载中</string>
+    <string name="sources_search_success">成功，%1$d 条</string>
+    <string name="sources_search_success_truncated">成功，显示前 %1$d 条（已达单源安全上限）</string>
+    <string name="sources_search_failure">失败：%1$s</string>
+    <string name="sources_search_poster">%1$s 的海报</string>
+    <string name="sources_search_poster_unavailable">海报不可用</string>
+    <string name="sources_search_unknown_title">未命名影片</string>
+    <string name="sources_search_source">来源：%1$s</string>
+    <string name="sources_search_detail_title">解析详情</string>
+    <string name="sources_search_detail_loading">正在加载详情和播放线路…</string>
+    <string name="sources_search_detail_failed">详情加载失败：%1$s</string>
+    <string name="sources_search_detail_close">关闭</string>
+    <string name="sources_search_detail_director">导演：%1$s</string>
+    <string name="sources_search_detail_actors">演员：%1$s</string>
+    <string name="sources_search_detail_description">简介：%1$s</string>
+    <string name="sources_search_detail_lines">播放线路</string>
+    <string name="sources_search_detail_no_lines">没有解析到播放线路。</string>
+    <string name="sources_search_detail_line">%1$s（%2$d 集）</string>
+    <string name="sources_search_detail_episodes">%1$s</string>
+    <string name="sources_search_result_limit">结果总数已达到安全上限；请缩小关键词范围后继续测试。</string>
 </resources>

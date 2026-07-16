@@ -79,7 +79,7 @@ class DefaultLegacyConfigImporterTest {
         val roundTrip = importer.importConfig(
             text = snapshot.original.canonicalText,
             displayName = "规范化回读",
-            kind = ConfigImportKind.PASTED_TEXT,
+            kind = ConfigImportKind.REMOTE_URL,
             origin = snapshot.origin,
         ).imported.single()
         assertEquals(snapshot.id, roundTrip.id)
@@ -266,6 +266,76 @@ class DefaultLegacyConfigImporterTest {
         assertEquals("https://example.invalid:8443/…", snapshot.originDisplay)
         assertFalse(snapshot.originDisplay.orEmpty().contains("secret"))
         assertFalse(snapshot.originDisplay.orEmpty().contains("token"))
+    }
+
+    @Test
+    fun validRemoteOriginKeepsConfigurationAndSourceIdentityAcrossContentUpdates() = runTest {
+        val importer = DefaultLegacyConfigImporter()
+        val origin = "HTTPS://EXAMPLE.INVALID:443/config/main.json?channel=stable"
+        val first = importer.importConfig(
+            text = """{"sites":[{"key":"one","name":"First","type":1,"api":"https://source.invalid/api"}]}""",
+            displayName = "first",
+            kind = ConfigImportKind.REMOTE_URL,
+            origin = origin,
+        ).imported.single()
+        val updated = importer.importConfig(
+            text = """{"future":true,"sites":[{"key":"one","name":"Updated","type":1,"api":"https://source.invalid/api"}]}""",
+            displayName = "updated",
+            kind = ConfigImportKind.REMOTE_URL,
+            origin = "https://example.invalid/config/main.json?channel=stable",
+        ).imported.single()
+        val differentOrigin = importer.importConfig(
+            text = updated.original.canonicalText,
+            displayName = "different",
+            kind = ConfigImportKind.REMOTE_URL,
+            origin = "https://example.invalid/config/other.json?channel=stable",
+        ).imported.single()
+
+        assertEquals(first.id, updated.id)
+        assertEquals(first.fields.sites.single().sourceKey, updated.fields.sites.single().sourceKey)
+        assertFalse(updated.id.value.contains("example.invalid"))
+        assertEquals("https://example.invalid/…", updated.originDisplay)
+        assertFalse(updated.id == differentOrigin.id)
+    }
+
+    @Test
+    fun pastedAndLocalConfigurationIdentityStillTracksCanonicalContent() = runTest {
+        val importer = DefaultLegacyConfigImporter()
+        val first = importer.importConfig(
+            text = """{"sites":[]}""",
+            displayName = "first",
+            kind = ConfigImportKind.PASTED_TEXT,
+        ).imported.single()
+        val updated = importer.importConfig(
+            text = """{"future":true,"sites":[]}""",
+            displayName = "updated",
+            kind = ConfigImportKind.PASTED_TEXT,
+        ).imported.single()
+
+        assertFalse(first.id == updated.id)
+    }
+
+    @Test
+    fun excessiveSiteCountIsBoundedWithARecoverableDiagnostic() = runTest {
+        val sites = (0..DefaultLegacyConfigImporter.MAX_SITES_PER_CONFIG).joinToString(",") { index ->
+            """{"key":"site-$index","name":"站点 $index","type":1,"api":"https://site-$index.invalid/api"}"""
+        }
+
+        val result = DefaultLegacyConfigImporter().importConfig(
+            text = """{"sites":[$sites]}""",
+            displayName = "站点上限",
+            kind = ConfigImportKind.PASTED_TEXT,
+        )
+
+        assertEquals(
+            DefaultLegacyConfigImporter.MAX_SITES_PER_CONFIG,
+            result.imported.single().fields.sites.size,
+        )
+        assertTrue(
+            result.diagnostics.any { diagnostic ->
+                diagnostic.code == CompatibilityIssueCode.RESOURCE_LIMIT && diagnostic.recoverable
+            },
+        )
     }
 
     @Test

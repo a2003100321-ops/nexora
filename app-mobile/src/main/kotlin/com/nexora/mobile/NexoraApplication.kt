@@ -1,10 +1,15 @@
 package com.nexora.mobile
 
 import android.app.Application
-import com.nexora.source.runtime.config.AndroidLegacySourceRepository
+import android.content.Context
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import com.nexora.source.runtime.AndroidSourceRuntime
 
-public class NexoraApplication : Application() {
-    public val sourceRepository: AndroidLegacySourceRepository by lazy {
-        AndroidLegacySourceRepository.create(this)
+public class NexoraApplication : Application(), SingletonImageLoader.Factory {
+    public val sourceRuntime: AndroidSourceRuntime by lazy {
+        AndroidSourceRuntime.create(this)
     }
+
+    override fun newImageLoader(context: Context): ImageLoader = createSecurePosterImageLoader(context)
 }

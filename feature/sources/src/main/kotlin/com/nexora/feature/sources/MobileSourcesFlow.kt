@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nexora.source.api.CompatibilityDiagnostic
+import com.nexora.source.api.AllSourcesSearcher
 import com.nexora.source.api.LegacyConfigId
 import com.nexora.source.api.LegacyConfigImportResult
 import com.nexora.source.api.LegacyConfigSnapshot
+import com.nexora.source.api.LegacyHttpSourceGateway
 import com.nexora.source.api.LegacySourceKey
 import com.nexora.source.api.LegacySourceRepository
 import kotlinx.coroutines.CancellationException
@@ -25,12 +27,23 @@ import kotlinx.coroutines.launch
 @Composable
 public fun MobileSourcesFlow(
     repository: LegacySourceRepository,
+    searcher: AllSourcesSearcher,
+    gateway: LegacyHttpSourceGateway,
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val sourceState by repository.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val searchController = remember(repository, searcher, gateway, scope) {
+        SourceSearchController(
+            repository = repository,
+            searcher = searcher,
+            gateway = gateway,
+            scope = scope,
+        )
+    }
+    val searchState by searchController.state.collectAsStateWithLifecycle()
     val documentReader = remember(context) {
         LocalConfigDocumentReader(context.contentResolver)
     }
@@ -221,7 +234,22 @@ public fun MobileSourcesFlow(
                 uiError = null
                 feedback = null
             },
+            onOpenSearch = { destination = SourcesDestination.SEARCH_TEST },
             onFinished = ::finish,
+            modifier = modifier,
+        )
+
+        SourcesDestination.SEARCH_TEST -> SourceSearchScreen(
+            state = searchState,
+            onQueryChange = searchController::updateQuery,
+            onCancel = searchController::cancelSearch,
+            onRetry = searchController::retry,
+            onSelectResult = searchController::selectResult,
+            onCloseDetail = searchController::closeDetail,
+            onBack = {
+                searchController.cancelSearch()
+                destination = SourcesDestination.MANAGEMENT
+            },
             modifier = modifier,
         )
     }
