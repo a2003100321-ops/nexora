@@ -32,6 +32,7 @@ include(
     ":feature:sources",
     ":player:api",
     ":player:media3",
+    ":player:runtime",
     ":source:api",
     ":source:config",
     ":source:plugin-api",
