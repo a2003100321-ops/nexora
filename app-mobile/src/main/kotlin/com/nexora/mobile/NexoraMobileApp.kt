@@ -1,5 +1,6 @@
 package com.nexora.mobile
 
+import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,13 +17,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexora.feature.home.MobileHomeShell
+import com.nexora.feature.player.PlayerRoute
 import com.nexora.feature.sources.MobileSourcesFlow
 import com.nexora.source.api.AllSourcesSearcher
 import com.nexora.source.api.LegacyHttpSourceGateway
@@ -31,6 +35,7 @@ import com.nexora.source.api.LegacySourceRepository
 private enum class MobileDestination {
     LANDING,
     SOURCES,
+    PLAYER,
 }
 
 @Composable
@@ -42,6 +47,10 @@ public fun NexoraMobileApp(
 ) {
     val sourceState by repository.state.collectAsStateWithLifecycle()
     var destination by rememberSaveable { mutableStateOf<MobileDestination?>(null) }
+    val application = LocalContext.current.applicationContext as Application
+    val playerViewModel = viewModel<MobilePlayerViewModel>(
+        factory = MobilePlayerViewModel.Factory(application),
+    )
 
     LaunchedEffect(sourceState.isInitialized) {
         if (sourceState.isInitialized && destination == null) {
@@ -57,6 +66,7 @@ public fun NexoraMobileApp(
         null -> InitializingScreen(modifier)
         MobileDestination.LANDING -> MobileHomeShell(
             onManageSources = { destination = MobileDestination.SOURCES },
+            onOpenPlayer = { destination = MobileDestination.PLAYER },
             modifier = modifier,
         )
         MobileDestination.SOURCES -> MobileSourcesFlow(
@@ -64,6 +74,12 @@ public fun NexoraMobileApp(
             searcher = searcher,
             gateway = gateway,
             onFinished = { destination = MobileDestination.LANDING },
+            modifier = modifier,
+        )
+        MobileDestination.PLAYER -> PlayerRoute(
+            controller = playerViewModel.controller,
+            request = samplePlaybackRequest(),
+            onBack = { destination = MobileDestination.LANDING },
             modifier = modifier,
         )
     }

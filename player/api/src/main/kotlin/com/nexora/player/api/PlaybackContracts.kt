@@ -149,18 +149,21 @@ public sealed interface PlaybackState {
         val request: PlaybackSessionRequest,
         val generation: PlaybackGeneration,
         val positionMs: Long,
+        val durationMs: Long? = null,
     ) : PlaybackState
 
     public data class Playing(
         val request: PlaybackSessionRequest,
         val generation: PlaybackGeneration,
         val positionMs: Long,
+        val durationMs: Long? = null,
     ) : PlaybackState
 
     public data class Paused(
         val request: PlaybackSessionRequest,
         val generation: PlaybackGeneration,
         val positionMs: Long,
+        val durationMs: Long? = null,
     ) : PlaybackState
 
     public data class Completed(

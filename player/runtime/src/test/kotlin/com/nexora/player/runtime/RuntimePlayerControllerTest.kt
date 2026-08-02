@@ -39,12 +39,14 @@ class RuntimePlayerControllerTest {
         val engine = FakePlayerEngine()
         val controller = RuntimePlayerController(engine, this)
         controller.dispatch(PlayerCommand.Open(request("one")))
+        engine.prepared(durationMs = 180_000)
 
         engine.playing(positionMs = 12_000)
         advanceUntilIdle()
 
         val state = assertIs<PlaybackState.Playing>(controller.state.value)
         assertEquals(12_000, state.positionMs)
+        assertEquals(180_000, state.durationMs)
     }
 
     @Test

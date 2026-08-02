@@ -20,7 +20,17 @@ val intentionallyPinnedVersionChecks = setOf(
 )
 
 subprojects {
-    group = rootProject.group
+    group = buildString {
+        append(rootProject.group)
+        project.path
+            .split(':')
+            .filter(String::isNotBlank)
+            .dropLast(1)
+            .forEach { segment ->
+                append('.')
+                append(segment.replace('-', '.'))
+            }
+    }
     version = rootProject.version
 
     pluginManager.withPlugin("com.android.application") {
@@ -67,8 +77,11 @@ val allowedModuleEdges = mapOf(
     ":app-mobile" to setOf(
         ":core:designsystem",
         ":feature:home",
+        ":feature:player",
         ":feature:sources",
+        ":player:api",
         ":player:media3",
+        ":player:runtime",
         ":source:api",
         ":source:runtime",
     ),

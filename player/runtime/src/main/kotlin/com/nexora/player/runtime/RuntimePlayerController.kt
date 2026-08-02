@@ -12,7 +12,6 @@ import com.nexora.player.api.PlayerController
 import com.nexora.player.api.PlayerEngine
 import com.nexora.player.api.PlayerEngineContext
 import com.nexora.player.api.PlayerEngineEvent
-import com.nexora.player.api.PlayerErrorCode
 import com.nexora.player.api.PlayerEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -36,6 +35,7 @@ public class RuntimePlayerController(
     private var generationSequence = 0L
     private var activeGeneration: PlaybackGeneration? = null
     private var activeRequest: PlaybackSessionRequest? = null
+    private var activeDurationMs: Long? = null
     private var closed = false
 
     override val state: StateFlow<PlaybackState> = mutableState
@@ -92,6 +92,7 @@ public class RuntimePlayerController(
         val generation = nextGeneration()
         activeGeneration = generation
         activeRequest = request
+        activeDurationMs = null
         setState(PlaybackState.Preparing(request, generation), commandId, operationId, generation)
         emit(PlayerEvent.CommandAccepted(commandId, operationId, generation))
         engine.prepare(request, PlayerEngineContext(commandId, operationId, generation))
@@ -109,6 +110,7 @@ public class RuntimePlayerController(
         val generation = nextGeneration()
         activeGeneration = generation
         activeRequest = request
+        activeDurationMs = null
         setState(PlaybackState.Preparing(request, generation), commandId, operationId, generation)
         emit(PlayerEvent.CommandAccepted(commandId, operationId, generation))
         engine.prepare(request, PlayerEngineContext(commandId, operationId, generation))
@@ -135,6 +137,7 @@ public class RuntimePlayerController(
         }
         activeGeneration = null
         activeRequest = null
+        activeDurationMs = null
         setState(PlaybackState.Idle, commandId, operationId, generation)
         return accepted(commandId, operationId, generation)
     }
@@ -145,6 +148,7 @@ public class RuntimePlayerController(
         closed = true
         activeGeneration = null
         activeRequest = null
+        activeDurationMs = null
         emit(PlayerEvent.CommandAccepted(commandId, operationId, generation))
         engine.close()
         setState(PlaybackState.Released, commandId, operationId, generation)
@@ -179,16 +183,38 @@ public class RuntimePlayerController(
         }
 
         val nextState = when (event) {
-            is PlayerEngineEvent.Prepared -> PlaybackState.Buffering(
+            is PlayerEngineEvent.Prepared -> {
+                activeDurationMs = event.durationMs
+                PlaybackState.Buffering(
+                    request = request,
+                    generation = event.generation,
+                    positionMs = currentPositionMs(),
+                    durationMs = activeDurationMs,
+                )
+            }
+            is PlayerEngineEvent.Buffering -> PlaybackState.Buffering(
                 request = request,
                 generation = event.generation,
-                positionMs = currentPositionMs(),
+                positionMs = event.positionMs,
+                durationMs = activeDurationMs,
             )
-            is PlayerEngineEvent.Buffering -> PlaybackState.Buffering(request, event.generation, event.positionMs)
-            is PlayerEngineEvent.Playing -> PlaybackState.Playing(request, event.generation, event.positionMs)
-            is PlayerEngineEvent.Paused -> PlaybackState.Paused(request, event.generation, event.positionMs)
+            is PlayerEngineEvent.Playing -> PlaybackState.Playing(
+                request = request,
+                generation = event.generation,
+                positionMs = event.positionMs,
+                durationMs = activeDurationMs,
+            )
+            is PlayerEngineEvent.Paused -> PlaybackState.Paused(
+                request = request,
+                generation = event.generation,
+                positionMs = event.positionMs,
+                durationMs = activeDurationMs,
+            )
             is PlayerEngineEvent.SeekCompleted -> stateAfterSeek(request, event)
-            is PlayerEngineEvent.Completed -> PlaybackState.Completed(request, event.generation, event.durationMs)
+            is PlayerEngineEvent.Completed -> {
+                activeDurationMs = event.durationMs
+                PlaybackState.Completed(request, event.generation, event.durationMs)
+            }
             is PlayerEngineEvent.Error -> PlaybackState.Error(
                 request = request,
                 generation = event.generation,
@@ -204,8 +230,18 @@ public class RuntimePlayerController(
         request: PlaybackSessionRequest,
         event: PlayerEngineEvent.SeekCompleted,
     ): PlaybackState = when (mutableState.value) {
-        is PlaybackState.Paused -> PlaybackState.Paused(request, event.generation, event.positionMs)
-        else -> PlaybackState.Playing(request, event.generation, event.positionMs)
+        is PlaybackState.Paused -> PlaybackState.Paused(
+            request = request,
+            generation = event.generation,
+            positionMs = event.positionMs,
+            durationMs = activeDurationMs,
+        )
+        else -> PlaybackState.Playing(
+            request = request,
+            generation = event.generation,
+            positionMs = event.positionMs,
+            durationMs = activeDurationMs,
+        )
     }
 
     private fun currentPositionMs(): Long = when (val snapshot = mutableState.value) {

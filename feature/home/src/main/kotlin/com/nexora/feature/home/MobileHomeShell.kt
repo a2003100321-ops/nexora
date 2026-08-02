@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 public fun MobileHomeShell(
     onManageSources: () -> Unit,
+    onOpenPlayer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -54,6 +55,12 @@ public fun MobileHomeShell(
                 modifier = Modifier.padding(top = 28.dp),
             ) {
                 Text(text = stringResource(R.string.home_manage_sources))
+            }
+            Button(
+                onClick = onOpenPlayer,
+                modifier = Modifier.padding(top = 12.dp),
+            ) {
+                Text(text = stringResource(R.string.home_open_basic_player))
             }
         }
     }

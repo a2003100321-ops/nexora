@@ -2,6 +2,7 @@
 <resources>
     <string name="home_title">Nexora</string>
     <string name="home_status">基础工程已就绪</string>
-    <string name="home_stage">M0–M2 基础阶段</string>
+    <string name="home_stage">M4.3a 基础播放器 UI 验证入口</string>
     <string name="home_manage_sources">管理数据源</string>
+    <string name="home_open_basic_player">打开基础播放器</string>
 </resources>
