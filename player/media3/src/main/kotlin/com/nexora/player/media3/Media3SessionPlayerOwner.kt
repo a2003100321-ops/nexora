@@ -3,6 +3,7 @@ package com.nexora.player.media3
 import android.content.Context
 import android.content.Intent
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
 
 @UnstableApi
@@ -29,6 +30,8 @@ internal object Media3SessionPlayerOwner {
     }
 
     fun currentSession(): MediaSession? = synchronized(lock) { mediaSession }
+
+    fun acquireSurfacePlayer(context: Context): Player = acquireAdapter(context).sessionPlayer
 
     fun stopService(context: Context) {
         context.applicationContext.stopService(

@@ -3,6 +3,7 @@ package com.nexora.mobile
 import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nexora.feature.home.MobileHomeShell
-import com.nexora.feature.player.PlayerRoute
 import com.nexora.feature.sources.MobileSourcesFlow
+import com.nexora.player.media3.Media3VideoSurface
 import com.nexora.source.api.AllSourcesSearcher
 import com.nexora.source.api.LegacyHttpSourceGateway
 import com.nexora.source.api.LegacySourceRepository
@@ -76,13 +77,21 @@ public fun NexoraMobileApp(
             onFinished = { destination = MobileDestination.LANDING },
             modifier = modifier,
         )
-        MobileDestination.PLAYER -> PlayerRoute(
+        MobileDestination.PLAYER -> MobilePlayerFullscreenHost(
             controller = playerViewModel.controller,
             request = samplePlaybackRequest(),
             onBack = { destination = MobileDestination.LANDING },
             modifier = modifier,
+            videoRenderer = { NexoraMedia3Surface() },
         )
     }
+}
+
+@Composable
+private fun BoxScope.NexoraMedia3Surface() {
+    Media3VideoSurface(
+        modifier = Modifier.fillMaxSize(),
+    )
 }
 
 @Composable

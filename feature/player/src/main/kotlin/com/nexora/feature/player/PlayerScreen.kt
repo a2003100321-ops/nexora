@@ -39,13 +39,15 @@ public fun PlayerRoute(
     request: PlaybackSessionRequest,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    isFullscreen: Boolean = false,
+    onFullscreen: () -> Unit = {},
     videoRenderer: @Composable BoxScope.() -> Unit = { BasicVideoSurfacePlaceholder() },
 ) {
     val playbackState by controller.state.collectAsState()
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(request.sessionId) {
-        if (playbackState.activeSessionId != request.sessionId.value) {
+    LaunchedEffect(request.sessionId, playbackState) {
+        if (PlayerSessionResumePolicy.shouldOpen(playbackState, request)) {
             controller.dispatch(PlayerCommand.Open(request, autoPlay = true))
         }
     }
@@ -53,9 +55,13 @@ public fun PlayerRoute(
     PlayerScreen(
         state = playbackState.toPlayerScreenState(),
         onBack = {
-            scope.launch {
-                controller.dispatch(PlayerCommand.Stop)
+            if (isFullscreen) {
                 onBack()
+            } else {
+                scope.launch {
+                    controller.dispatch(PlayerCommand.Stop)
+                    onBack()
+                }
             }
         },
         onPlayPause = {
@@ -73,10 +79,9 @@ public fun PlayerRoute(
                 controller.dispatch(PlayerCommand.SeekTo(positionMs))
             }
         },
-        onFullscreen = {
-            // M4.3a only exposes the control. Orientation/fullscreen behavior is reserved for a later phase.
-        },
+        onFullscreen = onFullscreen,
         modifier = modifier,
+        isFullscreen = isFullscreen,
         videoRenderer = videoRenderer,
     )
 }
@@ -89,8 +94,12 @@ public fun PlayerScreen(
     onSeek: (Long) -> Unit,
     onFullscreen: () -> Unit,
     modifier: Modifier = Modifier,
+    isFullscreen: Boolean = false,
     videoRenderer: @Composable BoxScope.() -> Unit = { BasicVideoSurfacePlaceholder() },
 ) {
+    val horizontalPadding = if (isFullscreen) 8.dp else 16.dp
+    val verticalPadding = if (isFullscreen) 8.dp else 16.dp
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = Color.Black,
@@ -98,7 +107,7 @@ public fun PlayerScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
@@ -120,7 +129,7 @@ public fun PlayerScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .heightIn(min = 220.dp)
+                    .heightIn(min = if (isFullscreen) 260.dp else 220.dp)
                     .background(Color(0xFF101010))
                     .semantics { contentDescription = "视频渲染区域" },
                 contentAlignment = Alignment.Center,
@@ -167,7 +176,7 @@ public fun PlayerScreen(
                         onClick = onFullscreen,
                         modifier = Modifier.widthIn(min = 112.dp),
                     ) {
-                        Text(text = "全屏")
+                        Text(text = if (isFullscreen) "退出全屏" else "全屏")
                     }
                 }
             }
@@ -186,16 +195,3 @@ private fun BasicVideoSurfacePlaceholder() {
 
 private val PlaybackState.isPlaying: Boolean
     get() = this is PlaybackState.Playing || this is PlaybackState.Buffering
-
-private val PlaybackState.activeSessionId: String?
-    get() = when (this) {
-        is PlaybackState.Preparing -> request.sessionId.value
-        is PlaybackState.Buffering -> request.sessionId.value
-        is PlaybackState.Playing -> request.sessionId.value
-        is PlaybackState.Paused -> request.sessionId.value
-        is PlaybackState.Completed -> request.sessionId.value
-        is PlaybackState.Error -> request?.sessionId?.value
-        PlaybackState.Idle,
-        PlaybackState.Released,
-        -> null
-    }
