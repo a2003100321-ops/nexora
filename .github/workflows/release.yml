@@ -1,0 +1,134 @@
+name: APK Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag, for example v1.0.0"
+        required: true
+        default: "v0.0.0-manual"
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-apks:
+    name: Build and publish APK release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Prepare release metadata
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            tag="${{ inputs.version }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          if [[ ! "${tag}" =~ ^v.+ ]]; then
+            echo "Release tag must start with v: ${tag}" >&2
+            exit 1
+          fi
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Decode release signing key
+        id: signing
+        shell: bash
+        env:
+          NEXORA_KEYSTORE_BASE64: ${{ secrets.NEXORA_KEYSTORE_BASE64 }}
+          NEXORA_KEYSTORE_PASSWORD: ${{ secrets.NEXORA_KEYSTORE_PASSWORD }}
+          NEXORA_KEY_ALIAS: ${{ secrets.NEXORA_KEY_ALIAS }}
+          NEXORA_KEY_PASSWORD: ${{ secrets.NEXORA_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${NEXORA_KEYSTORE_BASE64}" && -n "${NEXORA_KEYSTORE_PASSWORD}" && -n "${NEXORA_KEY_ALIAS}" && -n "${NEXORA_KEY_PASSWORD}" ]]; then
+            mkdir -p "${RUNNER_TEMP}/nexora-signing"
+            printf '%s' "${NEXORA_KEYSTORE_BASE64}" | base64 --decode > "${RUNNER_TEMP}/nexora-signing/release.keystore"
+            echo "signed=true" >> "${GITHUB_OUTPUT}"
+            echo "NEXORA_KEYSTORE_FILE=${RUNNER_TEMP}/nexora-signing/release.keystore" >> "${GITHUB_ENV}"
+            echo "NEXORA_KEYSTORE_PASSWORD=${NEXORA_KEYSTORE_PASSWORD}" >> "${GITHUB_ENV}"
+            echo "NEXORA_KEY_ALIAS=${NEXORA_KEY_ALIAS}" >> "${GITHUB_ENV}"
+            echo "NEXORA_KEY_PASSWORD=${NEXORA_KEY_PASSWORD}" >> "${GITHUB_ENV}"
+          else
+            echo "signed=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build release APKs
+        run: ./gradlew :app-mobile:assembleRelease :app-tv:assembleRelease --no-daemon
+
+      - name: Package release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.metadata.outputs.tag }}"
+          suffix=""
+          if [[ "${{ steps.signing.outputs.signed }}" != "true" ]]; then
+            suffix="-unsigned"
+          fi
+
+          mkdir -p release-assets
+          mobile_apk="$(find app-mobile/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' | sort | head -n 1)"
+          tv_apk="$(find app-tv/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' | sort | head -n 1)"
+
+          if [[ -z "${mobile_apk}" || -z "${tv_apk}" ]]; then
+            echo "Release APK output was not found." >&2
+            exit 1
+          fi
+
+          cp "${mobile_apk}" "release-assets/Nexora-mobile-${tag}${suffix}.apk"
+          cp "${tv_apk}" "release-assets/Nexora-tv-${tag}${suffix}.apk"
+
+          if [[ "${suffix}" == "-unsigned" ]]; then
+            {
+              echo "This is an unsigned/test APK artifact."
+              echo "Do not use it as a production signed release."
+            } > release-assets/UNSIGNED_TEST_BUILD.txt
+          fi
+
+          (cd release-assets && sha256sum *.apk > SHA256SUMS.txt)
+
+      - name: Publish GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${{ steps.metadata.outputs.tag }}"
+          if [[ "${{ steps.signing.outputs.signed }}" == "true" ]]; then
+            title="Nexora ${tag}"
+            notes="Signed Nexora Android APK release."
+          else
+            title="Nexora ${tag} unsigned/test"
+            notes="Unsigned/test Nexora Android APK build. Configure NEXORA_* signing secrets before producing a production release."
+          fi
+
+          if gh release view "${tag}" >/dev/null 2>&1; then
+            gh release upload "${tag}" release-assets/* --clobber
+          else
+            gh release create "${tag}" release-assets/* \
+              --target "${GITHUB_SHA}" \
+              --title "${title}" \
+              --notes "${notes}"
+          fi
