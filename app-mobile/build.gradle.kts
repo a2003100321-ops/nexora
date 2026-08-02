@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":feature:home"))
     implementation(project(":feature:sources"))
+    implementation(project(":player:media3"))
     implementation(project(":source:api"))
     implementation(project(":source:runtime"))
     implementation(platform(libs.androidx.compose.bom))

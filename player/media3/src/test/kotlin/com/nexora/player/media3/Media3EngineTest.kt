@@ -278,7 +278,13 @@ private class FakeMedia3PlayerAdapter : Media3PlayerAdapter {
 }
 
 private object FakeMediaItemFactory : Media3MediaItemFactory {
-    override fun create(mediaId: String, url: String, mimeType: String?): MediaItem = MediaItem.EMPTY
+    override fun create(
+        mediaId: String,
+        url: String,
+        mimeType: String?,
+        title: String,
+        artworkUrl: String?,
+    ): MediaItem = MediaItem.EMPTY
 }
 
 private class ContractFakeEngine : PlayerEngine {

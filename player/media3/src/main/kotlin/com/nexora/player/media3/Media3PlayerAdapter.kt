@@ -42,9 +42,12 @@ internal data class Media3PlaybackFailure(
 @UnstableApi
 internal class ExoPlayerMedia3PlayerAdapter(
     context: Context,
+    private val player: ExoPlayer = ExoPlayer.Builder(context).build(),
 ) : Media3PlayerAdapter {
-    private val player = ExoPlayer.Builder(context).build()
     private var listener: Media3PlayerAdapterListener? = null
+
+    internal val sessionPlayer: Player
+        get() = player
 
     init {
         player.addListener(

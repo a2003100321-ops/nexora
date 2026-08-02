@@ -1,6 +1,7 @@
 package com.nexora.player.media3
 
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
 import com.nexora.player.api.PlaybackSessionRequest
@@ -17,6 +18,8 @@ internal class Media3MediaItemMapper(
             mediaId = request.sessionId.value,
             url = dataSourceRequest.url,
             mimeType = mimeType,
+            title = request.media.title,
+            artworkUrl = request.media.posterUrl,
         )
         return Media3MappedItem(
             mediaItem = mediaItem,
@@ -43,14 +46,32 @@ internal data class Media3MappedItem(
 )
 
 internal fun interface Media3MediaItemFactory {
-    fun create(mediaId: String, url: String, mimeType: String?): MediaItem
+    fun create(
+        mediaId: String,
+        url: String,
+        mimeType: String?,
+        title: String,
+        artworkUrl: String?,
+    ): MediaItem
 }
 
 private object DefaultMedia3MediaItemFactory : Media3MediaItemFactory {
-    override fun create(mediaId: String, url: String, mimeType: String?): MediaItem =
+    override fun create(
+        mediaId: String,
+        url: String,
+        mimeType: String?,
+        title: String,
+        artworkUrl: String?,
+    ): MediaItem =
         MediaItem.Builder()
             .setMediaId(mediaId)
             .setUri(url)
             .setMimeType(mimeType)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(title)
+                    .setArtworkUri(artworkUrl?.let(android.net.Uri::parse))
+                    .build(),
+            )
             .build()
 }

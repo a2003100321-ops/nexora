@@ -61,6 +61,7 @@ public data class PlaybackMediaIdentity(
     val title: String,
     val episodeId: String? = null,
     val episodeTitle: String? = null,
+    val posterUrl: String? = null,
 )
 
 public data class PlaybackResource(

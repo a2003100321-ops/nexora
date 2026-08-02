@@ -68,6 +68,7 @@ val allowedModuleEdges = mapOf(
         ":core:designsystem",
         ":feature:home",
         ":feature:sources",
+        ":player:media3",
         ":source:api",
         ":source:runtime",
     ),

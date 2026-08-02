@@ -21,7 +21,7 @@ public class Media3Engine internal constructor(
     private var generation: PlaybackGeneration? = null
     private var released = false
 
-    public constructor(context: Context) : this(ExoPlayerMedia3PlayerAdapter(context.applicationContext))
+    public constructor(context: Context) : this(ServiceBackedMedia3PlayerAdapter(context.applicationContext))
 
     override val capabilities: Set<Capability> = setOf(
         Capability.PREPARE,
@@ -29,6 +29,7 @@ public class Media3Engine internal constructor(
         Capability.PAUSE,
         Capability.SEEK,
         Capability.STOP,
+        Capability.BACKGROUND_PLAYBACK,
     )
 
     init {
