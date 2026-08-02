@@ -7,8 +7,14 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:network"))
     implementation(project(":core:logging"))
     implementation(project(":player:api"))
     implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.datasource)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.exoplayer.hls)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

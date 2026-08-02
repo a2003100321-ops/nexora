@@ -84,7 +84,7 @@ val allowedModuleEdges = mapOf(
     ":feature:settings" to setOf(":core:designsystem", ":storage:api"),
     ":feature:sources" to setOf(":core:designsystem", ":source:api"),
     ":player:api" to setOf(":core:common", ":core:model"),
-    ":player:media3" to setOf(":core:logging", ":player:api"),
+    ":player:media3" to setOf(":core:logging", ":core:network", ":player:api"),
     ":player:runtime" to setOf(":core:logging", ":player:api"),
     ":source:api" to setOf(":core:common", ":core:model"),
     ":source:config" to setOf(":core:common", ":source:api"),
